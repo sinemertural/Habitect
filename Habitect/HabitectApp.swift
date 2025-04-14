@@ -9,9 +9,19 @@ import SwiftUI
 
 @main
 struct HabitectApp: App {
+    @StateObject var appState = AppState()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if appState.hasSeenOnboarding {
+                ContentView()
+            } else if appState.hasSeenWelcome {
+                OnboardingView()
+                    .environmentObject(appState)
+            } else {
+                WelcomeScreen()
+                    .environmentObject(appState)
+            }
         }
     }
 }
