@@ -11,3 +11,5 @@ class AppState: ObservableObject {
     @Published var hasSeenWelcome: Bool = false
     @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
 }
+
+//uygulamaya devam edeceğim kısım
