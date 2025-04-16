@@ -12,4 +12,4 @@ class AppState: ObservableObject {
     @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
 }
 
-//uygulamaya devam edeceğim kısım
+//uygulamaya devam edeceğim kısımdayım.
