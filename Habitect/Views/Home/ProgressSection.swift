@@ -7,9 +7,9 @@
 
 import SwiftUI
 
+
 struct ProgressSection: View {
-    // Örnek tamamlama oranı
-    let completionRate: Double = 0.65 // %65 tamamlanmış gibi
+    var completionRate: Double // 💡 Dışarıdan oran al
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -53,8 +53,9 @@ struct ProgressSection: View {
 }
 
 #Preview {
-    ProgressSection()
+    ProgressSection(completionRate: 0.65)
         .preferredColorScheme(.dark)
         .padding()
         .background(Color.black)
 }
+

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MotivationCard: View {
-    let message: String = "Small habits make a big difference. 🚀"
+    @StateObject private var viewModel = MotivationCardViewModel()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -16,9 +16,18 @@ struct MotivationCard: View {
                 .font(.headline)
                 .foregroundColor(.white.opacity(0.9))
 
-            Text(message)
-                .font(.body)
-                .foregroundColor(.white)
+            if let quote = viewModel.quote {
+                Text("“\(quote.q)”")
+                    .font(.body)
+                    .foregroundColor(.white)
+
+                Text("- \(quote.a)")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.8))
+            } else {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+            }
         }
         .padding()
         .frame(maxWidth: .infinity)
@@ -29,8 +38,12 @@ struct MotivationCard: View {
         )
         .cornerRadius(20)
         .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 4)
+        .onAppear {
+            viewModel.loadQuote()
+        }
     }
 }
+
 
 #Preview {
     MotivationCard()

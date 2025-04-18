@@ -10,11 +10,14 @@ import SwiftUI
 @main
 struct HabitectApp: App {
     @StateObject var appState = AppState()
+    @StateObject var habitViewModel = HabitViewModel() // ✅ ViewModel burada oluşturuluyor
 
     var body: some Scene {
         WindowGroup {
             if appState.hasSeenOnboarding {
                 ContentView()
+                    .environmentObject(appState)
+                    .environmentObject(habitViewModel) // ✅ Buraya bağlıyoruz
             } else if appState.hasSeenWelcome {
                 OnboardingView()
                     .environmentObject(appState)
@@ -25,3 +28,4 @@ struct HabitectApp: App {
         }
     }
 }
+    

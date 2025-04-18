@@ -8,11 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var habitViewModel: HabitViewModel
+
     var body: some View {
         MainTabView()
+            .environmentObject(habitViewModel) // ✅ BU ŞART!
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(HabitViewModel())
 }
