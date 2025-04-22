@@ -7,55 +7,50 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @EnvironmentObject var appState: AppState
+
     var body: some View {
         NavigationView {
-            List {
-                Section {
-                    HStack(spacing: 16) {
-                        Image(systemName: "person.crop.circle.fill")
-                            .resizable()
-                            .frame(width: 60, height: 60)
-                            .foregroundColor(.primaryColor)
+            VStack(spacing: 32) {
+                Spacer()
 
-                        VStack(alignment: .leading) {
-                            Text("Sinem Ertural")
-                                .font(.headline)
-                            Text("sinem@example.com")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                        }
+                Image(systemName: "person.crop.circle")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100, height: 100)
+                    .foregroundColor(.gray)
+
+                Text("Sinem Ertural")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+
+                Spacer()
+
+                Button(action: {
+                    withAnimation {
+                        AuthService.shared.signOut()
+                        appState.isLoggedIn = false
                     }
-                    .padding(.vertical, 8)
+                }) {
+                    Label("Log Out", systemImage: "arrow.backward.circle")
+                        .foregroundColor(.red)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(12)
                 }
+                .padding(.horizontal)
 
-                Section(header: Text("Settings")) {
-                    NavigationLink(destination: Text("Account Settings")) {
-                        Label("Account", systemImage: "person.circle")
-                    }
-
-                    NavigationLink(destination: Text("Notifications")) {
-                        Label("Notifications", systemImage: "bell")
-                    }
-
-                    NavigationLink(destination: Text("Privacy Policy")) {
-                        Label("Privacy", systemImage: "lock")
-                    }
-                }
-
-                Section {
-                    Button(action: {
-                        // Çıkış işlemi burada olacak
-                    }) {
-                        Label("Log Out", systemImage: "arrow.backward.circle")
-                            .foregroundColor(.red)
-                    }
-                }
+                Spacer()
             }
+            .padding()
             .navigationTitle("Profile")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
 
 #Preview {
     ProfileView()
+        .environmentObject(AppState())
 }
