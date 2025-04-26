@@ -7,13 +7,17 @@
 
 import Foundation
 import SwiftUI
+import FirebaseFirestore
 
 class HabitViewModel: ObservableObject {
-    @Published var habits: [Habit] = [
-        Habit(title: "Drink Water", description: "", isCompleted: false, date: Date(), repeatDays: ["Mon", "Wed", "Fri"]),
-        Habit(title: "Read 10 pages", description: "", isCompleted: true, date: Date(), repeatDays: ["Tue", "Thu"]),
-        Habit(title: "Walk 30 mins", description: "", isCompleted: false, date: Date(), repeatDays: ["Sat", "Sun"])
-    ]
+    
+    init() {
+        fetchHabits()
+    }
+
+    @Published var habits: [Habit] = []
+    
+    private let habitService = HabitService.shared
 
     // ✅ Tamamlanma oranı
     var completionRate: Double {
@@ -46,13 +50,48 @@ class HabitViewModel: ObservableObject {
     // ✅ Yeni alışkanlık ekle
     func addHabit(title: String, description: String = "", repeatDays: [String] = [], date: Date = Date()) {
         let newHabit = Habit(title: title, description: description, isCompleted: false, date: date, repeatDays: repeatDays)
-        habits.append(newHabit)
+
+        habitService.addHabit(newHabit) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success():
+                    self?.habits.append(newHabit)
+                case .failure(let error):
+                    print("Alışkanlık eklenemedi: \(error.localizedDescription)")
+                }
+            }
+        }
     }
+
 
     // ✅ Alışkanlık sil
     func deleteHabit(habit: Habit) {
-        habits.removeAll { $0.id == habit.id }
+        habitService.deleteHabit(habit) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success():
+                    self?.habits.removeAll { $0.id == habit.id }
+                case .failure(let error):
+                    print("Alışkanlık silinemedi: \(error.localizedDescription)")
+                }
+            }
+        }
     }
+
+    
+    func fetchHabits() {
+        habitService.fetchHabits { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let habits):
+                    self?.habits = habits
+                case .failure(let error):
+                    print("Habits çekilemedi: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
 }
 
 // ✅ DateFormatter extension (bugünün kısa gün adını almak için)
