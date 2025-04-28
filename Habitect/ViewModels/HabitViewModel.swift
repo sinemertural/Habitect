@@ -13,7 +13,12 @@ class HabitViewModel: ObservableObject {
     
     init() {
         fetchHabits()
+
+        NotificationCenter.default.addObserver(forName: .didLogin, object: nil, queue: .main) { _ in
+            self.fetchHabits()
+        }
     }
+
 
     @Published var habits: [Habit] = []
     
@@ -80,6 +85,10 @@ class HabitViewModel: ObservableObject {
 
     
     func fetchHabits() {
+        DispatchQueue.main.async {
+            self.habits = [] // ⬅️⬅️⬅️ Önce listeyi temizle
+        }
+        
         habitService.fetchHabits { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
@@ -91,6 +100,7 @@ class HabitViewModel: ObservableObject {
             }
         }
     }
+
 
 }
 

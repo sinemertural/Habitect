@@ -91,7 +91,6 @@ struct LoginView: View {
         }
     }
 
-    // 📦 Basit Giriş Doğrulama (şimdilik)
     func handleLogin() {
         errorMessage = nil
 
@@ -105,12 +104,14 @@ struct LoginView: View {
                 switch result {
                 case .success:
                     appState.isLoggedIn = true
+                    NotificationCenter.default.post(name: .didLogin, object: nil) // ✨ Bildirimi gönder
                 case .failure(let error):
                     errorMessage = error.localizedDescription
                 }
             }
         }
     }
+
 }
 
 #Preview {

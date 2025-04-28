@@ -8,6 +8,8 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var habitViewModel: HabitViewModel
+
 
     var body: some View {
         NavigationView {
@@ -30,6 +32,7 @@ struct ProfileView: View {
                     withAnimation {
                         AuthService.shared.signOut()
                         appState.isLoggedIn = false
+                        habitViewModel.habits = []
                     }
                 }) {
                     Label("Log Out", systemImage: "arrow.backward.circle")
@@ -39,6 +42,7 @@ struct ProfileView: View {
                         .background(Color(.systemGray6))
                         .cornerRadius(12)
                 }
+
                 .padding(.horizontal)
 
                 Spacer()
