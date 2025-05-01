@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import FirebaseCore //dsmfk
+import FirebaseCore //dsdsdsmfk
 
 @main
 struct HabitectApp: App {
