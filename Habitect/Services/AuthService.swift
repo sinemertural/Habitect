@@ -47,5 +47,13 @@ class AuthService: ObservableObject {
             print("Çıkış işlemi başarısız: \(error.localizedDescription)")
         }
     }
+    
+    func getDisplayName() -> String {
+        if let user = self.user {
+            return user.displayName ?? user.email?.components(separatedBy: "@").first ?? "User"
+        }
+        return "User"
+    }
+
 }
 

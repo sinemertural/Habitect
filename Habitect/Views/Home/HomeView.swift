@@ -8,12 +8,13 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var habitViewModel: HabitViewModel
+    @EnvironmentObject var authService: AuthService
 
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    Text("Good Morning, Sinem 👋")
+                    Text("Good Morning, \(authService.getDisplayName()) 👋")
                         .font(.title)
                         .fontWeight(.bold)
                         .padding(.top)

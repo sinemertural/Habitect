@@ -24,6 +24,7 @@ struct HabitectApp: App {
                     ContentView()
                         .environmentObject(appState)
                         .environmentObject(habitViewModel)
+                        .environmentObject(AuthService.shared) // 👈 BU SATIRI EKLE
                 } else {
                     LoginView()
                         .environmentObject(appState)
