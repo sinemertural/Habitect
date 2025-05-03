@@ -2,7 +2,7 @@
 //  HomeView.swift
 //  Habitect
 //
-//  Created by Sinem Ertural on 17.04.2025.
+//  Created by Sinem Ertural on 17.04.2025.ss
 //
 import SwiftUI
 
