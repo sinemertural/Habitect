@@ -12,12 +12,13 @@ import FirebaseFirestore
 class HabitViewModel: ObservableObject {
     
     init() {
-        fetchHabits()
+        observeHabits()
 
         NotificationCenter.default.addObserver(forName: .didLogin, object: nil, queue: .main) { _ in
-            self.fetchHabits()
+            self.observeHabits()
         }
     }
+
 
 
     @Published var habits: [Habit] = []
@@ -30,11 +31,36 @@ class HabitViewModel: ObservableObject {
         let completedCount = habits.filter { $0.isCompleted }.count
         return Double(completedCount) / Double(habits.count)
     }
+    
+    func observeHabits() {
+        habitService.observeHabits { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let habits):
+                    self?.habits = habits
+                case .failure(let error):
+                    print("Canlı veri dinlenemedi: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+
 
     // ✅ Tamamlanma durumunu değiştir
     func toggleCompletion(for habit: Habit) {
         if let index = habits.firstIndex(where: { $0.id == habit.id }) {
             habits[index].isCompleted.toggle()
+            let updatedHabit = habits[index]
+
+            habitService.updateHabit(updatedHabit) { result in
+                switch result {
+                case .success():
+                    print("Tamamlanma durumu güncellendi.")
+                case .failure(let error):
+                    print("Güncelleme hatası: \(error.localizedDescription)")
+                }
+            }
+
         }
     }
 

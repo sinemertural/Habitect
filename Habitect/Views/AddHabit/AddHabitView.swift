@@ -14,15 +14,20 @@ struct AddHabitView: View {
     @State private var selectedDays: Set<String> = []
     @State private var reminderEnabled: Bool = false
     @State private var selectedTime = Date()
+    @State private var description: String = ""
 
     let weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
     var body: some View {
         NavigationView {
             Form {
-                // 🔤 Başlık
+                // 🔤 Başlık ve açıklama
                 Section(header: Text("Habit Title")) {
                     TextField("e.g. Drink Water", text: $title)
+
+                    Section(header: Text("Description (Optional)")) {
+                        TextField("e.g. 8 cups per day", text: $description)
+                    }
                 }
 
                 // 🔁 Gün Seçimi
@@ -39,7 +44,7 @@ struct AddHabitView: View {
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(Color.primaryColor.opacity(selectedDays.contains(day) ? 0 : 0.3), lineWidth: 1)
                                 )
-                                .contentShape(Rectangle()) // 🛡️ Tıklama alanı tamamını kapsasın
+                                .contentShape(Rectangle())
                                 .onTapGesture {
                                     toggleDay(day)
                                 }
@@ -47,7 +52,6 @@ struct AddHabitView: View {
                     }
                     .padding(.vertical, 4)
                 }
-
 
                 // ⏰ Hatırlatıcı
                 Section {
@@ -61,11 +65,25 @@ struct AddHabitView: View {
                 // 💾 Kaydet Butonu
                 Section {
                     Button(action: {
+                        // 🔵 Alışkanlık ekle
                         viewModel.addHabit(
                             title: title,
+                            description: description,
                             repeatDays: Array(selectedDays),
                             date: selectedTime
                         )
+
+                        // 🔔 Bildirim planla
+                        if reminderEnabled {
+                            NotificationManager.shared.scheduleDailyNotification(
+                                id: UUID().uuidString,
+                                title: title,
+                                body: description.isEmpty ? "Don't forget to complete your habit!" : description,
+                                time: selectedTime
+                            )
+                        }
+
+                        // 🔄 Formu sıfırla
                         resetForm()
                     }) {
                         Text("Save Habit")
@@ -82,28 +100,27 @@ struct AddHabitView: View {
         }
     }
 
-    // ✅ Tam burada!
-       func toggleDay(_ day: String) {
-           if selectedDays.contains(day) {
-               selectedDays.remove(day)
-           } else {
-               selectedDays.insert(day)
-           }
-           print("Selected Days: \(selectedDays)")
-       }
-    
+    // 🔁 Gün seçimini aç/kapat
+    func toggleDay(_ day: String) {
+        if selectedDays.contains(day) {
+            selectedDays.remove(day)
+        } else {
+            selectedDays.insert(day)
+        }
+    }
+
     // 🔄 Formu sıfırla
     func resetForm() {
         title = ""
         selectedDays.removeAll()
         reminderEnabled = false
         selectedTime = Date()
+        description = ""
     }
-    
 }
-
 
 #Preview {
     AddHabitView()
         .environmentObject(HabitViewModel())
 }
+

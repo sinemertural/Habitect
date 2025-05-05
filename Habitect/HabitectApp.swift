@@ -14,6 +14,7 @@ struct HabitectApp: App {
     @StateObject var habitViewModel = HabitViewModel()
     
     init() {
+            NotificationManager.shared.requestAuthorization()
             FirebaseApp.configure() // ✅ Firebase'i başlatıyoruz
     }
 

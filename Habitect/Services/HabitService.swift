@@ -53,6 +53,45 @@ class HabitService {
             }
         }
     }
+    
+    func updateHabit(_ habit: Habit, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let userId = userId else { return }
+
+        do {
+            let updatedData = try habit.toDictionary()
+            db.collection("users")
+                .document(userId)
+                .collection("habits")
+                .document(habit.id.uuidString)
+                .setData(updatedData, merge: true) { error in
+                    if let error = error {
+                        completion(.failure(error))
+                    } else {
+                        completion(.success(()))
+                    }
+                }
+        } catch {
+            completion(.failure(error))
+        }
+    }
+
+    
+    func observeHabits(completion: @escaping (Result<[Habit], Error>) -> Void) {
+        guard let userId = userId else { return }
+
+        db.collection("users").document(userId).collection("habits")
+            .addSnapshotListener { snapshot, error in
+                if let error = error {
+                    completion(.failure(error))
+                } else {
+                    let habits = snapshot?.documents.compactMap { doc -> Habit? in
+                        return try? doc.data().toObject(Habit.self)
+                    } ?? []
+                    completion(.success(habits))
+                }
+            }
+    }
+
 
     // 🔵 Alışkanlık silme
     func deleteHabit(_ habit: Habit, completion: @escaping (Result<Void, Error>) -> Void) {
