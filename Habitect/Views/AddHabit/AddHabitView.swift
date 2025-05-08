@@ -109,7 +109,7 @@ struct AddHabitView: View {
         }
     }
 
-    // 🔄 Formu sıfırlae
+    // 🔄 Formu sıfırlaehh
     func resetForm() {
         title = ""
         selectedDays.removeAll()
