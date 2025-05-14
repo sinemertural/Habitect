@@ -100,7 +100,7 @@ struct AddHabitView: View {
         }
     }
 
-    // 🔁 Gün seçimini aç/kapatdd
+    // 🔁 Gün seçimini aç/kapatddfgsdf
     func toggleDay(_ day: String) {
         if selectedDays.contains(day) {
             selectedDays.remove(day)
