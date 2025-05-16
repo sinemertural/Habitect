@@ -12,7 +12,7 @@ struct ContentView: View {
 
     var body: some View {
         MainTabView()
-            .environmentObject(habitViewModel) // ✅ BU ŞART!
+            .environmentObject(habitViewModel) 
     }
 }
 
