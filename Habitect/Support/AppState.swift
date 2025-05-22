@@ -16,7 +16,7 @@ final class AppState: ObservableObject {
     /// Indicates whether the user has seen the welcome screen (for temporary use within the app lifecycle).
     @Published var hasSeenWelcome: Bool = false
 
-    /// Indicates whether the user has completed the onboarding process.
+    /// Indicates whether the user has completed the onboarding process.j
     @AppStorage("hasSeenOnboarding") var hasSeenOnboarding: Bool = false
 
     /// Indicates whether the user is currently logged in.
