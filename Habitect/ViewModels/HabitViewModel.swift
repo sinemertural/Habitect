@@ -9,29 +9,45 @@ import Foundation
 import SwiftUI
 import FirebaseFirestore
 
-class HabitViewModel: ObservableObject {
+final class HabitViewModel: ObservableObject {
     
-    init() {
-        observeHabits()
-
-        NotificationCenter.default.addObserver(forName: .didLogin, object: nil, queue: .main) { _ in
-            self.observeHabits()
-        }
-    }
-
-
-
+    // MARK: - Published Properties
     @Published var habits: [Habit] = []
     
+    // MARK: - Dependencies
     private let habitService = HabitService.shared
-
-    // ✅ Tamamlanma oranı
-    var completionRate: Double {
-        guard !habits.isEmpty else { return 0.0 }
-        let completedCount = habits.filter { $0.isCompleted }.count
-        return Double(completedCount) / Double(habits.count)
-    }
     
+    // MARK: - Initialization
+    init() {
+        observeHabits()
+        NotificationCenter.default.addObserver(self, selector: #selector(handleLogin), name: .didLogin, object: nil)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    // MARK: - Computed Properties
+    
+    /// Günlük tamamlanma oranı
+    var completionRate: Double {
+        calculateCompletionRate(for: habits)
+    }
+
+    /// Bugünün alışkanlıkları
+    func habitsForToday() -> [Habit] {
+        let today = DateFormatter.shortWeekday(from: Date())
+        return habits.filter { $0.repeatDays.contains(today) }
+    }
+
+    /// Bugüne özel tamamlanma oranı
+    func completionRateForToday() -> Double {
+        let todayHabits = habitsForToday()
+        return calculateCompletionRate(for: todayHabits)
+    }
+
+    // MARK: - Habit Operations
+
     func observeHabits() {
         habitService.observeHabits { [weak self] result in
             DispatchQueue.main.async {
@@ -45,43 +61,22 @@ class HabitViewModel: ObservableObject {
         }
     }
 
-
-    // ✅ Tamamlanma durumunu değiştir
     func toggleCompletion(for habit: Habit) {
-        if let index = habits.firstIndex(where: { $0.id == habit.id }) {
-            habits[index].isCompleted.toggle()
-            let updatedHabit = habits[index]
-
-            habitService.updateHabit(updatedHabit) { result in
-                switch result {
-                case .success():
-                    print("Tamamlanma durumu güncellendi.")
-                case .failure(let error):
-                    print("Güncelleme hatası: \(error.localizedDescription)")
-                }
+        guard let index = habits.firstIndex(where: { $0.id == habit.id }) else { return }
+        
+        habits[index].isCompleted.toggle()
+        let updatedHabit = habits[index]
+        
+        habitService.updateHabit(updatedHabit) { result in
+            if case .failure(let error) = result {
+                print("Güncelleme hatası: \(error.localizedDescription)")
             }
-
         }
     }
 
-    // ✅ Bugünün alışkanlıkları (Mon, Tue... karşılaştırması yapılır)
-    func habitsForToday() -> [Habit] {
-        let today = DateFormatter.shortWeekday(from: Date())
-        return habits.filter { $0.repeatDays.contains(today) }
-    }
-    
-    func completionRateForToday() -> Double {
-        let todayHabits = habitsForToday()
-        guard !todayHabits.isEmpty else { return 0.0 }
-        let completed = todayHabits.filter { $0.isCompleted }.count
-        return Double(completed) / Double(todayHabits.count)
-    }
-
-
-    // ✅ Yeni alışkanlık ekle
     func addHabit(title: String, description: String = "", repeatDays: [String] = [], date: Date = Date()) {
         let newHabit = Habit(title: title, description: description, isCompleted: false, date: date, repeatDays: repeatDays)
-
+        
         habitService.addHabit(newHabit) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
@@ -94,9 +89,7 @@ class HabitViewModel: ObservableObject {
         }
     }
 
-
-    // ✅ Alışkanlık sil
-    func deleteHabit(habit: Habit) {
+    func deleteHabit(_ habit: Habit) {
         habitService.deleteHabit(habit) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
@@ -109,10 +102,9 @@ class HabitViewModel: ObservableObject {
         }
     }
 
-    
     func fetchHabits() {
         DispatchQueue.main.async {
-            self.habits = [] // ⬅️⬅️⬅️ Önce listeyi temizle
+            self.habits = []
         }
         
         habitService.fetchHabits { [weak self] result in
@@ -121,20 +113,31 @@ class HabitViewModel: ObservableObject {
                 case .success(let habits):
                     self?.habits = habits
                 case .failure(let error):
-                    print("Habits çekilemedi: \(error.localizedDescription)")
+                    print("Alışkanlıklar getirilemedi: \(error.localizedDescription)")
                 }
             }
         }
     }
 
+    // MARK: - Helpers
+    
+    private func calculateCompletionRate(for habits: [Habit]) -> Double {
+        guard !habits.isEmpty else { return 0.0 }
+        let completedCount = habits.filter { $0.isCompleted }.count
+        return Double(completedCount) / Double(habits.count)
+    }
 
+    @objc private func handleLogin() {
+        observeHabits()
+    }
 }
 
-// ✅ DateFormatter extension (bugünün kısa gün adını almak için)
+// MARK: - DateFormatter Extension
+
 extension DateFormatter {
     static func shortWeekday(from date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "EEE" // "Mon", "Tue", ...
+        formatter.dateFormat = "EEE" // örn. "Mon", "Tue"
         formatter.locale = Locale(identifier: "en_US_POSIX")
         return formatter.string(from: date)
     }
