@@ -15,7 +15,14 @@ struct Habit: Identifiable, Codable {
     var date: Date
     var repeatDays: [String]
     
-    init(id: UUID = UUID(), title: String, description: String, isCompleted: Bool, date: Date, repeatDays: [String]) {
+    init(
+        id: UUID = UUID(),
+        title: String,
+        description: String,
+        isCompleted: Bool,
+        date: Date,
+        repeatDays: [String]
+    ) {
         self.id = id
         self.title = title
         self.description = description
@@ -23,12 +30,9 @@ struct Habit: Identifiable, Codable {
         self.date = date
         self.repeatDays = repeatDays
     }
-
 }
 
-// 🔥 BURAYA EKLİYORUZdksl
-
-
+// MARK: - Dictionary Conversion
 
 extension Habit {
     func toDictionary() throws -> [String: Any] {
@@ -40,7 +44,8 @@ extension Habit {
 
 extension Dictionary {
     func toObject<T: Decodable>(_ type: T.Type) throws -> T {
-        let data = try JSONSerialization.data(withJSONObject: self)
+        let data = try JSONSerialization.data(withJSONObject: self, options: [])
         return try JSONDecoder().decode(T.self, from: data)
     }
 }
+
